@@ -1,0 +1,9 @@
+flask
+apscheduler
+requests
+treelib
+natsort
+aiohttp
+websockets
+pycryptodome
+websocket-client

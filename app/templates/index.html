@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>夸克自动转存</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    body {
+      background: #f5f7fb;
+      color: #1f2329;
+    }
+
+    .layout {
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+      border-right: 1px solid #eef0f5;
+      padding: 18px 12px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      font-weight: 600;
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      margin: 6px 0;
+      border-radius: 10px;
+      cursor: pointer;
+      color: #4b5563;
+      transition: 0.2s;
+    }
+
+    .nav-item:hover {
+      background: #eef4ff;
+      color: #2563eb;
+    }
+
+    .nav-item.active {
+      background: #e8f0ff;
+      color: #2563eb;
+      font-weight: 500;
+    }
+
+    .nav-bottom {
+      margin-top: 40px;
+      padding: 0 12px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .nav-bottom p {
+      margin: 8px 0;
+    }
+
+    .nav-bottom a {
+      color: #9ca3af;
+      text-decoration: none;
+    }
+
+    .nav-bottom a:hover {
+      color: #2563eb;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .topbar {
+      height: 60px;
+      background: #fff;
+      border-bottom: 1px solid #eef0f5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
+      font-size: 18px;
+    }
+
+    .user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .sub {
+      color: #6b7280;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      align-items: center;
+    }
+
+    .left-tools {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input, select {
+      height: 36px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 0 10px;
+      outline: none;
+      background: #fff;
+      font-size: 13px;
+    }
+
+    input:focus, select:focus {
+      border-color: #2563eb;
+    }
+
+    .btn {
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      transition: 0.2s;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-outline {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      color: #4b5563;
+    }
+
+    .btn-outline:hover {
+      border-color: #2563eb;
+      color: #2563eb;
+    }
+
+    .btn-success {
+      background: #16a34a;
+      color: #fff;
+    }
+
+    .btn-success:hover {
+      background: #15803d;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .btn-sm {
+      height: 30px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 1px 10px rgba(0,0,0,0.04);
+      margin-bottom: 12px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f3f4f6;
+      margin-bottom: 14px;
+      cursor: pointer;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 220px 120px 200px 1fr 120px 140px;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: #eef4ff;
+      color: #2563eb;
+      font-size: 12px;
+    }
+
+    .status {
+      color: #16a34a;
+      font-weight: 500;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: #fff;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    .icon-btn:hover {
+      border-color: #2563eb;
+      color: #2563eb;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    .field-desc {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .input-group input {
+      flex: 1;
+    }
+
+    .alert {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    .alert-warning {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      color: #92400e;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .badge-danger {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .table th, .table td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .table th {
+      background: #f9fafb;
+      font-weight: 600;
+      color: #4b5563;
+    }
+
+    .table tbody tr:hover {
+      background: #f9fafb;
+    }
+
+    .table td:nth-child(1),
+    .table td:nth-child(4) {
+      text-align: center;
+    }
+
+    .modal .table th,
+    .modal .table td {
+      text-align: center;
+    }
+
+    .collapse-content {
+      padding-top: 10px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+    }
+
+    .plugin-section {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .plugin-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #1f2329;
+    }
+
+    .bottom-buttons {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay-high {
+      z-index: 2000;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #9ca3af;
+    }
+
+    .modal-body {
+      padding: 16px;
+      overflow-y: auto;
+      max-height: 60vh;
+    }
+
+    .modal-footer {
+      padding: 12px 16px;
+      border-top: 1px solid #f3f4f6;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .toast-container {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      z-index: 2000;
+    }
+
+    .toast {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .toast.success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .toast.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .toast.warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .toast.info {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .table th, .table td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .table th {
+      background: #f9fafb;
+      font-weight: 600;
+      color: #6b7280;
+    }
+
+    .breadcrumb {
+      display: flex;
+      gap: 8px;
+      padding: 8px 0;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .breadcrumb-item {
+      color: #2563eb;
+      cursor: pointer;
+    }
+
+    .breadcrumb-item:hover {
+      text-decoration: underline;
+    }
+
+    .breadcrumb-item.active {
+      color: #9ca3af;
+      cursor: default;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #2563eb;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .task-edit-modal {
+      background: #fff;
+      border-radius: 14px;
+      width: 800px;
+      max-width: 90%;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .task-edit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 24px;
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      flex-shrink: 0;
+    }
+
+    .task-edit-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .task-edit-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .task-edit-btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      transition: 0.2s;
+    }
+
+    .task-edit-btn-primary {
+      background: #1677ff;
+      color: #fff;
+    }
+
+    .task-edit-btn-primary:hover {
+      background: #0d66e6;
+    }
+
+    .task-edit-btn-danger {
+      background: #ff4d4f;
+      color: #fff;
+    }
+
+    .task-edit-btn-danger:hover {
+      background: #e64343;
+    }
+
+    .task-edit-btn-default {
+      background: #f2f3f5;
+      color: #4b5563;
+    }
+
+    .task-edit-btn-default:hover {
+      background: #e5e7eb;
+    }
+
+    .task-edit-container {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .task-edit-container label {
+      display: block;
+      font-size: 13px;
+      color: #6b7a90;
+      margin-bottom: 6px;
+    }
+
+    .task-edit-container .input-group {
+      margin-bottom: 0;
+    }
+
+    .task-edit-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+      margin-bottom: 16px;
+    }
+
+    .task-edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .task-edit-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #1f2d3d;
+    }
+
+    .task-edit-plugin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .task-edit-plugin {
+      border: 1px solid #e6e8ee;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .task-edit-plugin:hover {
+      border-color: #1677ff;
+      box-shadow: 0 2px 10px rgba(22,119,255,0.1);
+    }
+
+    .task-edit-plugin.active {
+      border: 1px solid #1677ff;
+      background: #f0f6ff;
+    }
+
+    .task-edit-plugin-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #eaf2ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      font-weight: bold;
+      color: #1677ff;
+      font-size: 14px;
+    }
+
+    .task-edit-footer {
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px 0;
+      gap: 10px;
+    }
+
+    .config-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+      margin-top: 20px;
+    }
+
+    .config-section-header:first-child {
+      margin-top: 0;
+    }
+
+    .config-section-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="layout">
+    <div class="sidebar">
+      <div class="brand">☁️ 夸克自动转存</div>
+      <div class="nav-item" :class="{active: activeTab === 'config'}" @click="changeTab('config')">⚙️ 系统配置</div>
+      <div class="nav-item" :class="{active: activeTab === 'tasklist'}" @click="changeTab('tasklist')">📋 任务列表</div>
+      <div style="flex: 1;"></div>
+      <div class="nav-item" @click="logout()">🚪 退出登录</div>
+    </div>
+
+    <div class="main">
+      <div class="topbar">
+        <div style="font-weight:600;">{{ activeTab === 'config' ? '系统配置' : '任务列表' }}</div>
+      </div>
+
+      <div class="content">
+        <div v-if="activeTab === 'config'">
+          <div class="config-section-header">
+            <div>
+              <div class="title">签到</div>
+              <div class="sub">配置夸克网盘账号，支持多账号签到，仅第一个账号执行转存</div>
+            </div>
+            <div class="config-section-actions">
+              <button class="btn btn-primary btn-sm" @click="addCookie()">+ 添加账号</button>
+            </div>
+          </div>
+          <div>
+            <div v-for="(value, index) in formData.cookie" :key="index" class="card">
+              <div class="input-group">
+                <input type="text" v-model="formData.cookie[index]" placeholder="打开 pan.quark.com 按 F12 抓取 Cookie" style="flex: 1; width: auto;">
+                <button class="btn btn-danger btn-sm" @click="removeCookie(index)">删除</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="config-section-header">
+            <div>
+              <div class="title">🔔 钉钉机器人通知</div>
+              <div class="sub">配置钉钉机器人推送通知</div>
+            </div>
+            <div class="config-section-actions">
+              <button class="btn btn-success btn-sm" @click="testPush()">测试推送</button>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">DD_BOT_TOKEN</label>
+                  <input type="text" v-model="formData.push_config.DD_BOT_TOKEN" placeholder="钉钉机器人 access_token" style="width: 100%;">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">DD_BOT_SECRET</label>
+                  <input type="password" v-model="formData.push_config.DD_BOT_SECRET" placeholder="钉钉机器人加签密钥（可选）" style="width: 100%;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="config-section-header">
+            <div>
+              <div class="title">🔌 插件配置</div>
+              <div class="sub">配置飞牛影视 FNV Refresh v2 插件</div>
+            </div>
+            <div class="config-section-actions">
+              <button class="btn btn-success btn-sm" @click="testFnvPlugin()">🔧 测试</button>
+            </div>
+          </div>
+          <div>
+            <div v-for="(plugin, pluginName) in getAvailablePlugins(formData.plugins)" :key="pluginName" class="card">
+              <div class="card-header" @click="togglePlugin(pluginName)">
+                <div>
+                  <div class="card-title">{{ pluginName }}</div>
+                  <div class="card-subtitle">飞牛影视媒体库刷新插件</div>
+                </div>
+              </div>
+              <div v-show="!pluginCollapsed[pluginName]">
+                <template v-for="(value, key) in plugin" :key="key">
+                  <div v-if="key.startsWith('tips_')" class="alert alert-warning">{{ value }}</div>
+                  <div v-else-if="typeof value === 'boolean'" class="form-group">
+                    <label class="checkbox-item">
+                      <input type="checkbox" v-model="formData.plugins[pluginName][key]"> {{ key }}
+                    </label>
+                  </div>
+                  <div v-else class="form-group">
+                    <label class="form-label">{{ key }}</label>
+                    <input :type="key.includes('password') || key.includes('token') || key.includes('secret') ? 'password' : 'text'" v-model="formData.plugins[pluginName][key]" :placeholder="(pluginFieldDescriptions[pluginName] && pluginFieldDescriptions[pluginName][key]) ? pluginFieldDescriptions[pluginName][key] : '请输入' + key" style="width: 100%; max-width: 500px;">
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <div class="config-section-header">
+            <div>
+              <div class="title">✨ 魔法匹配</div>
+              <div class="sub">预定义的正则匹配规则，在任务列表中可直接使用</div>
+            </div>
+            <div class="config-section-actions">
+              <button class="btn btn-primary btn-sm" @click="addMagicRegex()">+ 添加规则</button>
+            </div>
+          </div>
+          <div>
+            <div v-for="(value, key) in formData.magic_regex" :key="key" class="card">
+              <div class="input-group">
+                <input type="text" :data-oldkey="key" v-model="key" class="form-control" @change="updateMagicRegexKey($event.target.dataset.oldkey, $event.target.value)" placeholder="魔法名" style="width: 150px; flex-shrink: 0;">
+                <input type="text" v-model="value.pattern" placeholder="匹配表达式" style="flex: 1; width: auto;">
+                <input type="text" v-model="value.replace" placeholder="替换表达式" style="flex: 1; width: auto;">
+                <button class="btn btn-danger btn-sm" @click="removeMagicRegex(key)">删除</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="activeTab === 'tasklist'">
+          <div class="toolbar">
+            <div class="left-tools">
+              <input v-model="taskNameFilter" placeholder="搜索任务名称">
+              <select v-model="taskDirSelected">
+                <option value="">全部路径</option>
+                <option v-for="dir in taskDirOptions" :value="dir">{{ dir }}</option>
+              </select>
+              <button class="btn btn-outline btn-sm" @click="clearData('taskNameFilter')">清除</button>
+            </div>
+            <div class="left-tools">
+              <button class="btn btn-primary btn-sm" @click="openTaskEditModal(-1)">+ 新建任务</button>
+              <button class="btn btn-outline btn-sm" @click="addTaskForClipboard()">📋 粘贴板导入</button>
+            </div>
+          </div>
+
+          <div class="card" style="text-align: center;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">序号</th>
+                  <th>任务名称</th>
+                  <th>保存路径</th>
+                  <th style="width: 120px;">执行时间</th>
+                  <th style="width: 80px;">状态</th>
+                  <th style="width: 180px;">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template v-for="(task, index) in formData.tasklist">
+                  <tr v-if="(taskDirSelected === '' || getParentDirectory(task.savepath) === taskDirSelected) && task.taskname.includes(taskNameFilter)" :key="index">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ task.taskname }}</td>
+                    <td>{{ task.savepath || '-' }}</td>
+                    <td>{{ getRunTime(task) }}</td>
+                    <td>
+                      <span v-if="task.shareurl_ban" class="badge badge-danger">异常</span>
+                      <span v-else class="status">正常</span>
+                    </td>
+                    <td>
+                      <div class="actions">
+                        <button class="icon-btn" @click="copyTaskToClipboard(index)" title="复制任务参数">📋</button>
+                        <button class="icon-btn" @click="openTaskEditModal(index)" title="编辑任务">✏️</button>
+                        <button class="icon-btn" @click="runScriptNow(index)" :disabled="task.shareurl_ban" title="开始运行">▶</button>
+                        <button class="icon-btn" @click="removeTask(index)" title="删除任务">🗑</button>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+                <tr v-if="filteredTasks.length === 0">
+                  <td colspan="6" style="text-align: center; padding: 40px;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
+                    <div>暂无任务，点击上方按钮新建任务</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-buttons">
+      <button class="btn btn-success" @click="saveConfig()" title="保存 CTRL+S" v-if="configModified">💾</button>
+      <button class="btn btn-primary" @click="runScriptNow()" title="运行 CTRL+R" v-if="activeTab === 'tasklist'">▶</button>
+      <button class="btn btn-outline" @click="scrollToX(0)" title="回顶">⬆</button>
+    </div>
+
+    <div v-if="showLogModal" class="modal-overlay" @click="showLogModal = false">
+      <div class="modal" @click.stop>
+        <div class="modal-header">
+          <div class="modal-title">运行日志 <div v-if="modalLoading" class="spinner" style="display:inline-block; margin-left:8px;"></div></div>
+          <button class="modal-close" @click="showLogModal = false">×</button>
+        </div>
+        <div class="modal-body" style="white-space: pre-wrap; font-family: monospace; max-height: 50vh; overflow-y: auto;">{{ run_log }}</div>
+      </div>
+    </div>
+
+    <div v-if="showFileModal" class="modal-overlay" :class="{'modal-overlay-high': showTaskEditModal}" @click="showFileModal = false">
+      <div class="modal" style="max-width: 800px;" @click.stop>
+        <div class="modal-header">
+          <div class="modal-title">
+            <b v-if="fileSelect.previewRegex">正则处理预览</b>
+            <b v-else-if="fileSelect.selectDir">选择{{fileSelect.selectShare ? '需转存的' : '保存到的'}}文件夹</b>
+            <b v-else>选择起始文件</b>
+            <div v-if="modalLoading" class="spinner" style="display:inline-block; margin-left:8px;"></div>
+          </div>
+          <button class="modal-close" @click="showFileModal = false">×</button>
+        </div>
+        <div class="modal-body small">
+          <div v-if="fileSelect.switchShare" style="margin-bottom: 12px;">
+            <div><b>名称：</b>{{ fileSelect.share.taskname }}</div>
+            <div><b>链接：</b><a :href="fileSelect.share.shareurl" target="_blank">{{ fileSelect.share.shareurl }}</a></div>
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+              <button class="btn btn-outline btn-sm" @click="switchShare(-1)">上一个</button>
+              <button class="btn btn-outline btn-sm" @click="switchShare(1)">下一个</button>
+            </div>
+          </div>
+          <div class="alert alert-warning" v-if="fileSelect.error">{{ fileSelect.error }}</div>
+          <div v-else>
+            <div v-if="fileSelect.previewRegex && (fileSelect.index >= 0 || showTaskEditModal)" style="margin-bottom: 12px;">
+              <div><b>匹配表达式：</b>{{ fileSelect.index >= 0 ? formData.tasklist[fileSelect.index].pattern : editingTask.pattern }}</div>
+              <div><b>替换表达式：</b>{{ fileSelect.index >= 0 ? (formData.tasklist[fileSelect.index].replace || '无') : (editingTask.replace || '无') }}</div>
+            </div>
+            <nav v-if="fileSelect.selectDir">
+              <div class="breadcrumb">
+                <div class="breadcrumb-item" @click="navigateTo('0','/')">🏠</div>
+                <div v-for="(item, index) in fileSelect.paths" :key="index" class="breadcrumb-item" :class="{active: index === fileSelect.paths.length - 1}">
+                  <span v-if="index !== fileSelect.paths.length - 1" @click="navigateTo(item.fid, item.name)">{{ item.name }}</span>
+                  <span v-else>{{ item.name }}</span>
+                </div>
+              </div>
+            </nav>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th @click="sortFileList('file_name')">文件名 {{ fileSelect.sortBy === 'file_name' ? (fileSelect.sortOrder === 'asc' ? '↑' : '↓') : '' }}</th>
+                  <th v-if="fileSelect.selectShare">正则处理</th>
+                  <template v-if="!fileSelect.previewRegex">
+                    <th>大小</th>
+                    <th @click="sortFileList('updated_at')">修改日期 {{ fileSelect.sortBy === 'updated_at' ? (fileSelect.sortOrder === 'asc' ? '↑' : '↓') : '' }}</th>
+                    <th v-if="!fileSelect.selectShare">操作</th>
+                  </template>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(file, key) in fileSelect.fileList" :key="key" @click="fileSelect.selectDir ? (file.dir ? navigateTo(file.fid, file.file_name) : null) : selectStartFid(file.fid)" style="cursor: pointer;">
+                  <td>{{ file.dir ? '📁' : '📄' }} {{ file.file_name }}</td>
+                  <td v-if="fileSelect.selectShare" :class="file.file_name_re ? 'text-success' : 'text-danger'">{{ file.file_name_re || '✗' }}</td>
+                  <template v-if="!fileSelect.previewRegex">
+                    <td>{{ file.dir ? file.include_items + '项' : formatFileSize(file.size) }}</td>
+                    <td>{{ formatDate(file.updated_at) }}</td>
+                    <td v-if="!fileSelect.selectShare"><button class="btn btn-danger btn-sm" @click.stop="deleteFile(file.fid, file.file_name, file.dir)">删除</button></td>
+                  </template>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer" v-if="fileSelect.selectDir && !fileSelect.previewRegex">
+          <span>{{ fileSelect.selectShare ? '转存：' : '保存到：' }}</span>
+          <button class="btn btn-primary btn-sm" @click="selectCurrentFolder()">当前文件夹</button>
+          <button class="btn btn-primary btn-sm" v-if="!fileSelect.selectShare" @click="selectCurrentFolder(true)">当前文件夹/{{ fileSelect.index >= 0 ? formData.tasklist[fileSelect.index].taskname : editingTask.taskname }}</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-container">
+      <div v-for="toast in toasts" :key="toast.id" class="toast" :class="toast.type">
+        <span>{{ toast.message }}</span>
+        <button @click="removeToast(toast.id)" style="background:none; border:none; margin-left:8px; cursor:pointer;">×</button>
+      </div>
+    </div>
+
+    <datalist id="magicRegex">
+      <option v-for="(value, key) in formData.magic_regex" :key="key" :value="key">{{ value.pattern }} → {{ value.replace }}</option>
+    </datalist>
+
+    <div v-if="showTaskEditModal" class="modal-overlay" @click="closeTaskEditModal()">
+      <div class="task-edit-modal" @click.stop>
+        <div class="task-edit-header">
+          <div class="task-edit-title">{{ editingTaskIndex === -1 ? '新建定时任务' : '编辑定时任务' }}</div>
+          <div class="task-edit-actions">
+            <button class="task-edit-btn task-edit-btn-default" @click="saveTaskDraft()">保存草稿</button>
+            <button class="task-edit-btn task-edit-btn-primary" @click="runTaskNowFromModal()">立即运行</button>
+            <button class="task-edit-btn task-edit-btn-danger" v-if="editingTaskIndex !== -1" @click="removeTaskFromModal()">删除</button>
+          </div>
+        </div>
+        <div class="task-edit-container">
+          <div class="task-edit-card task-edit-grid">
+            <div>
+              <label>任务名称</label>
+              <input type="text" v-model="editingTask.taskname" placeholder="请输入任务名称" style="width: 300px;" @focus="focusTasknameModal()" @input="changeTasknameModal()">
+            </div>
+            <div>
+              <label>分享链接</label>
+              <div class="input-group">
+                <input type="text" v-model="editingTask.shareurl" placeholder="可选，输入分享链接" @blur="changeShareurl(editingTask)">
+                <button class="btn btn-outline btn-sm" @click="showShareSelectModal()">📁</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="task-edit-card task-edit-grid">
+            <div>
+              <div class="task-edit-section-title">保存设置</div>
+              <label>保存路径</label>
+              <div class="input-group">
+                <input type="text" v-model="editingTask.savepath" placeholder="请输入保存路径">
+                <button class="btn btn-outline btn-sm" @click="showSavepathSelectModal()">选择</button>
+              </div>
+              <label style="margin-top:12px;">文件起始</label>
+              <div class="input-group">
+                <input type="text" v-model="editingTask.startfid" placeholder="选择起始文件">
+                <button class="btn btn-outline btn-sm" v-if="editingTask.shareurl" @click="showStartFidSelectModal()">选择</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="task-edit-section-title">定时规则</div>
+              <label>运行时间</label>
+              <input type="text" v-model="editingTask.cron" placeholder="0 8,18,20 * * *" style="width: 300px;" required />
+              <label style="margin-top:12px;">更新目录</label>
+              <div class="input-group">
+                <input type="text" v-model="editingTask.update_subdir" placeholder="匹配需要更新的目录" style="width: 300px;">
+                <label style="margin-bottom:0; margin-left:8px; white-space:nowrap; display:flex; align-items:center; gap:4px; color:#6b7a90; font-size:13px;">
+                  <input type="checkbox" v-model="editingTask.update_subdir_resave_mode" style="width:14px; height:14px; padding:0; border-radius:4px;"> 重传模式
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="task-edit-card task-edit-grid">
+            <div>
+              <div class="task-edit-section-title">保存规则</div>
+              <label>匹配表达式</label>
+              <div class="input-group">
+                <input type="text" v-model="editingTask.pattern" placeholder="输入匹配规则" style="width: 220px;" list="magicRegex" @dblclick="inputRawMagicRegex(editingTask)">
+                <button class="btn btn-outline btn-sm" @click="showRegexPreviewModal()">正则处理</button>
+              </div>
+              <label style="margin-top:12px;">替换表达式</label>
+              <div class="input-group">
+                <input type="text" v-model="editingTask.replace" placeholder="输入替换内容" style="width: 220px;"/>
+                <label style="margin-bottom:0; margin-left:8px; white-space:nowrap; display:flex; align-items:center; gap:4px; color:#6b7a90; font-size:13px;">
+                  <input type="checkbox" v-model="editingTask.ignore_extension" style="width:14px; height:14px; padding:0; border-radius:4px;"> 忽略后缀
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <div class="task-edit-section-title">插件选项</div>
+              <label>媒体库名称</label>
+              <div class="input-group">
+                <input type="text" v-model="editingTask.addition.fnv_refresh_v2.mdb_name" placeholder="如：电影库" style="width: 220px;">
+                <label style="margin-bottom:0; margin-left:8px; white-space:nowrap; display:flex; align-items:center; gap:4px; color:#6b7a90; font-size:13px;">
+                  <input type="checkbox" v-model="editingTask.addition.fnv_refresh_v2.auto_refresh" style="width:14px; height:14px; padding:0; border-radius:4px;"> 媒体库刷新
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="task-edit-footer">
+            <button class="task-edit-btn task-edit-btn-default" @click="closeTaskEditModal()">取消</button>
+            <button class="task-edit-btn task-edit-btn-primary" @click="saveTask()">保存任务</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./static/js/vue@2.js"></script>
+  <script src="./static/js/axios.min.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        version: "[[ version ]]",
+        versionTips: "",
+        plugin_flags: "[[ plugin_flags ]]",
+        weekdays: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+        formData: {
+          cookie: [],
+          push_config: {},
+          tasklist: [],
+          magic_regex: {},
+          plugins: {}
+        },
+        toasts: [],
+        newTask: {
+          taskname: "",
+          shareurl: "",
+          savepath: "/",
+          pattern: "",
+          replace: "",
+          addition: {},
+          ignore_extension: false,
+          runweek: [1, 2, 3, 4, 5, 6, 7],
+          cron: "0 8,18,20 * * *"
+        },
+        run_log: "",
+        taskDirs: [],
+        taskDirSelected: "",
+        taskNameFilter: "",
+        modalLoading: false,
+        showLogModal: false,
+        showFileModal: false,
+        showTaskEditModal: false,
+        editingTaskIndex: -1,
+        editingTask: {
+          taskname: "",
+          shareurl: "",
+          savepath: "/",
+          pattern: "",
+          replace: "",
+          startfid: "",
+          update_subdir: "",
+          update_subdir_resave_mode: false,
+          ignore_extension: false,
+          runweek: [1, 2, 3, 4, 5, 6, 7],
+          cron: "0 8,18,20 * * *",
+          addition: { fnv_refresh_v2: { auto_refresh: false, mdb_name: '' } }
+        },
+
+        activeTab: 'tasklist',
+        configModified: false,
+        pluginCollapsed: {},
+        pluginFieldDescriptions: {
+          fnv_refresh_v2: {
+            endpoint: '飞牛服务器地址，仅填写 IP:PORT 格式，如 172.17.0.1:5666',
+            username: '飞牛 OS 登录用户名（填写后插件自动获取认证字段）',
+            password: '飞牛 OS 登录密码',
+            mount_quark: '夸克网盘在 fnOS 中的挂载路径，如 /vol02/1000-1-954c7704',
+            media_name: '媒体库名称，如：影视',
+            remove_useless_wait: '自动移除缺失影片的等待秒数，建议 180；填 -1 不执行',
+            token: 'fnos-token Cookie（填写用户名密码后自动获取，无需手动填写）',
+            long_token: 'fnos-long-token Cookie（自动获取，无需手动填写）',
+            secret: 'fnos-Secret 密钥（自动获取，无需手动填写）',
+            fnv_token: 'Trim-MC-token Cookie（自动获取，无需手动填写）'
+          }
+        },
+        configCollapsed: {
+          cookie: true,
+          push: true,
+          plugin: true,
+          magic: true
+        },
+        fileSelect: {
+          index: null,
+          share: {},
+          shareurl: "",
+          stoken: "",
+          fileList: [],
+          paths: [],
+          selectDir: true,
+          selectShare: true,
+          switchShare: false,
+          previewRegex: false,
+          sortBy: "updated_at",
+          sortOrder: "desc"
+        },
+      },
+      watch: {
+        formData: {
+          handler() { this.configModified = true; },
+          deep: true
+        }
+      },
+      mounted() {
+        this.fetchData();
+        this.checkNewVersion();
+        document.addEventListener('keydown', this.handleKeyDown);
+        window.addEventListener('beforeunload', this.handleBeforeUnload);
+      },
+      beforeDestroy() {
+        window.removeEventListener('beforeunload', this.handleBeforeUnload);
+      },
+      computed: {
+        taskDirOptions() {
+          const dirs = [];
+          this.formData.tasklist.forEach(item => {
+            const parentDir = this.getParentDirectory(item.savepath);
+            if (parentDir && !dirs.includes(parentDir)) dirs.push(parentDir);
+          });
+          return dirs;
+        },
+        filteredTasks() {
+          return this.formData.tasklist.filter(task => {
+            const matchDir = this.taskDirSelected === '' || this.getParentDirectory(task.savepath) === this.taskDirSelected;
+            const matchName = task.taskname.includes(this.taskNameFilter);
+            return matchDir && matchName;
+          });
+        }
+      },
+      methods: {
+        formatFileSize(value) {
+          if (!value) return "";
+          const unitArr = ["B", "KB", "MB", "GB", "TB"];
+          const srcsize = parseFloat(value);
+          const index = srcsize ? Math.floor(Math.log(srcsize) / Math.log(1024)) : 0;
+          const num = (srcsize / Math.pow(1024, index)).toFixed(1).replace(/\.?0+$/, "");
+          return num + unitArr[index];
+        },
+        formatDate(value) {
+          if (!value) return "";
+          const date = new Date(value);
+          return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+        },
+        logout() {
+          window.location.href = '/logout';
+        },
+        changeTab(tab) {
+          this.activeTab = tab;
+        },
+        checkNewVersion() {
+          this.versionTips = this.version;
+          axios.get('https://api.github.com/repos/Cp0204/quark-auto-save/tags')
+            .then(response => {
+              const latestVersion = response.data[0].name;
+              if (latestVersion != this.version) {
+                this.versionTips += ` <span style="color:#dc2626; font-weight:bold;">${latestVersion}</span>`;
+              }
+            })
+            .catch(() => {});
+        },
+        fetchData() {
+          axios.get('/data')
+            .then(response => {
+              const config_data = response.data.data;
+              if (typeof config_data.cookie === 'string')
+                config_data.cookie = [config_data.cookie];
+              config_data.tasklist = config_data.tasklist.map(task => {
+                if (!task.hasOwnProperty('runweek')) task.runweek = [1, 2, 3, 4, 5, 6, 7];
+                if (!task.hasOwnProperty('collapsed')) task.collapsed = false;
+                if (!task.addition) task.addition = {};
+                if (!task.addition.fnv_refresh_v2) task.addition.fnv_refresh_v2 = { auto_refresh: false, mdb_name: '' };
+                return task;
+              });
+              config_data.tasklist.forEach(item => {
+                const parentDir = this.getParentDirectory(item.savepath);
+                if (!this.taskDirs.includes(parentDir)) this.taskDirs.push(parentDir);
+              });
+              this.newTask.addition = config_data.task_plugins_config_default;
+              this.formData = config_data;
+              for (const name in config_data.plugins) {
+                this.$set(this.pluginCollapsed, name, true);
+              }
+              setTimeout(() => { this.configModified = false; }, 100);
+            })
+            .catch(error => { console.error('Error fetching data:', error); });
+        },
+        handleKeyDown(event) {
+          if (event.ctrlKey || event.metaKey) {
+            if (event.keyCode === 83 || event.key === 's') { event.preventDefault(); this.saveConfig(); }
+            else if (event.keyCode === 82 || event.key === 'r') { event.preventDefault(); this.runScriptNow(); }
+          }
+        },
+        handleBeforeUnload(e) {
+          if (this.configModified) {
+            e.preventDefault();
+            e.returnValue = '配置已修改但未保存，确定要离开吗？';
+            return e.returnValue;
+          }
+        },
+        saveConfig() {
+          axios.post('/update', this.formData)
+            .then(response => {
+              if (response.data.success) {
+                this.configModified = false;
+                this.showToast(response.data.message, 'success');
+              } else {
+                this.showToast(response.data.message, 'error');
+              }
+            })
+            .catch(error => { console.error('Error saving config:', error); });
+        },
+        addCookie() { this.formData.cookie.push(""); },
+        removeCookie(index) {
+          if (this.formData.cookie[index] == "" || confirm("确认删除吗？"))
+            this.formData.cookie.splice(index, 1);
+        },
+        testPush() { this.runScriptNow(1, true); },
+        togglePlugin(name) {
+          this.$set(this.pluginCollapsed, name, !this.pluginCollapsed[name]);
+        },
+        toggleConfigSection(section) {
+          this.$set(this.configCollapsed, section, !this.configCollapsed[section]);
+        },
+        openTaskEditModal(index) {
+          this.editingTaskIndex = index;
+          if (index === -1) {
+            this.editingTask = {
+              taskname: "",
+              shareurl: "",
+              savepath: "/",
+              pattern: "",
+              replace: "",
+              startfid: "",
+              update_subdir: "",
+              update_subdir_resave_mode: false,
+              ignore_extension: false,
+              runweek: [1, 2, 3, 4, 5, 6, 7],
+              cron: "0 8,18,20 * * *",
+              addition: { fnv_refresh_v2: { auto_refresh: false, mdb_name: '' } }
+            };
+            if (this.formData.tasklist.length > 0) {
+              const lastTask = this.formData.tasklist[this.formData.tasklist.length - 1];
+              if (this.taskDirSelected) {
+                this.editingTask.savepath = this.taskDirSelected + '/TASKNAME';
+              } else {
+                this.editingTask.savepath = lastTask.savepath.replace(lastTask.taskname, 'TASKNAME');
+              }
+            }
+          } else {
+            const task = this.formData.tasklist[index];
+            this.editingTask = JSON.parse(JSON.stringify(task));
+            if (!this.editingTask.addition) {
+              this.$set(this.editingTask, 'addition', {});
+            }
+            if (!this.editingTask.addition.fnv_refresh_v2) {
+              this.$set(this.editingTask.addition, 'fnv_refresh_v2', { auto_refresh: false, mdb_name: '' });
+            }
+          }
+          this.showTaskEditModal = true;
+        },
+        closeTaskEditModal() {
+          this.showTaskEditModal = false;
+        },
+        saveTask() {
+          if (!this.editingTask.cron || !this.editingTask.cron.trim()) {
+            this.showToast('请填写运行时间', 'error');
+            return;
+          }
+          if (this.editingTaskIndex === -1) {
+            this.formData.tasklist.push(JSON.parse(JSON.stringify(this.editingTask)));
+            this.showToast('任务创建成功', 'success');
+          } else {
+            this.formData.tasklist[this.editingTaskIndex] = JSON.parse(JSON.stringify(this.editingTask));
+            this.showToast('任务更新成功', 'success');
+          }
+          this.showTaskEditModal = false;
+        },
+        saveTaskDraft() {
+          this.saveTask();
+        },
+        runTaskNowFromModal() {
+          if (!this.editingTask.cron || !this.editingTask.cron.trim()) {
+            this.showToast('请填写运行时间', 'error');
+            return;
+          }
+          if (this.editingTaskIndex === -1) {
+            this.formData.tasklist.push(JSON.parse(JSON.stringify(this.editingTask)));
+            this.editingTaskIndex = this.formData.tasklist.length - 1;
+          } else {
+            this.formData.tasklist[this.editingTaskIndex] = JSON.parse(JSON.stringify(this.editingTask));
+          }
+          this.showTaskEditModal = false;
+          this.runScriptNow(this.editingTaskIndex);
+        },
+        removeTaskFromModal() {
+          if (confirm("确认删除任务 [#" + (this.editingTaskIndex + 1) + ": " + this.editingTask.taskname + "] 吗？")) {
+            this.formData.tasklist.splice(this.editingTaskIndex, 1);
+            this.showToast('任务已删除', 'success');
+            this.showTaskEditModal = false;
+          }
+        },
+        focusTasknameModal() {
+          const regex = new RegExp(`/${this.editingTask.taskname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(/|$)`);
+          if (this.editingTask.savepath.includes('TASKNAME')) {
+            this.editingTask._origin_savepath = this.editingTask.savepath;
+          } else if (this.editingTask.savepath.match(regex)) {
+            this.editingTask._origin_savepath = this.editingTask.savepath.replace(this.editingTask.taskname, 'TASKNAME');
+          } else {
+            this.editingTask._origin_savepath = undefined;
+          }
+        },
+        changeTasknameModal() {
+          if (this.editingTask._origin_savepath) {
+            this.editingTask.savepath = this.editingTask._origin_savepath.replace('TASKNAME', this.editingTask.taskname);
+          }
+        },
+        showShareSelectModal() {
+          this.fileSelect.selectShare = true;
+          this.fileSelect.fileList = [];
+          this.fileSelect.paths = [];
+          this.fileSelect.error = undefined;
+          this.fileSelect.index = -1;
+          this.fileSelect.stoken = "";
+          this.fileSelect.shareurl = this.editingTask.shareurl;
+          this.showFileModal = true;
+          this.getShareDetail();
+        },
+        showSavepathSelectModal() {
+          this.fileSelect.selectShare = false;
+          this.fileSelect.selectDir = true;
+          this.fileSelect.switchShare = false;
+          this.fileSelect.previewRegex = false;
+          this.fileSelect.error = undefined;
+          this.fileSelect.fileList = [];
+          this.fileSelect.paths = [];
+          this.fileSelect.index = -1;
+          this.fileSelect.stoken = "";
+          this.showFileModal = true;
+          this.editingTask.savepath = this.editingTask.savepath.replace(/\/+/g, "/");
+          this.getSavepathDetail(this.editingTask.savepath);
+        },
+        showStartFidSelectModal() {
+          this.fileSelect.selectShare = true;
+          this.fileSelect.selectDir = false;
+          this.fileSelect.switchShare = false;
+          this.fileSelect.previewRegex = false;
+          this.fileSelect.error = undefined;
+          this.fileSelect.fileList = [];
+          this.fileSelect.paths = [];
+          this.fileSelect.index = -1;
+          this.fileSelect.stoken = "";
+          this.fileSelect.shareurl = this.editingTask.shareurl;
+          this.showFileModal = true;
+          this.getShareDetail();
+        },
+        toggleFnvPlugin() {
+          this.editingTask.addition.fnv_refresh_v2.auto_refresh = !this.editingTask.addition.fnv_refresh_v2.auto_refresh;
+        },
+        testFnvPlugin() {
+          this.run_log = '';
+          this.showLogModal = true;
+          this.modalLoading = true;
+          axios.post('/test_plugin', {
+            plugin_name: 'fnv_refresh_v2',
+            plugin: this.formData.plugins.fnv_refresh_v2
+          }).then(response => {
+            this.modalLoading = false;
+            this.run_log = response.data.log || '测试完成';
+          }).catch(error => {
+            this.modalLoading = false;
+            this.run_log = '测试失败: ' + (error.response?.data?.message || error.message);
+          });
+        },
+        showRegexPreviewModal() {
+          this.fileSelect.selectShare = true;
+          this.fileSelect.selectDir = true;
+          this.fileSelect.switchShare = false;
+          this.fileSelect.previewRegex = true;
+          this.fileSelect.error = undefined;
+          this.fileSelect.fileList = [];
+          this.fileSelect.paths = [];
+          this.fileSelect.index = -1;
+          this.fileSelect.stoken = "";
+          this.fileSelect.shareurl = this.editingTask.shareurl;
+          this.showFileModal = true;
+          this.getShareDetail();
+        },
+        addTask() {
+          let newTask = { ...this.newTask };
+          newTask.taskname = this.taskNameFilter;
+          if (this.formData.tasklist.length > 0) {
+            const lastTask = this.formData.tasklist[this.formData.tasklist.length - 1];
+            if (this.taskDirSelected) {
+              newTask.savepath = this.taskDirSelected + '/TASKNAME';
+            } else {
+              newTask.savepath = lastTask.savepath.replace(lastTask.taskname, newTask.taskname || 'TASKNAME');
+            }
+          }
+          newTask.collapsed = false;
+          if (!newTask.addition) newTask.addition = {};
+          if (!newTask.addition.fnv_refresh_v2) newTask.addition.fnv_refresh_v2 = { auto_refresh: false, mdb_name: '' };
+          this.formData.tasklist.push(newTask);
+        },
+        focusTaskname(index, task) {
+          const regex = new RegExp(`/${task.taskname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(/|$)`);
+          if (task.savepath.includes('TASKNAME')) {
+            task._origin_savepath = task.savepath;
+          } else if (task.savepath.match(regex)) {
+            task._origin_savepath = task.savepath.replace(task.taskname, 'TASKNAME');
+          } else {
+            task._origin_savepath = undefined;
+          }
+        },
+        changeTaskname(index, task) {
+          if (task._origin_savepath) task.savepath = task._origin_savepath.replace('TASKNAME', task.taskname);
+        },
+        removeTask(index) {
+          if (confirm("确认删除任务 [#" + (index + 1) + ": " + this.formData.tasklist[index].taskname + "] 吗？"))
+            this.formData.tasklist.splice(index, 1);
+        },
+        changeShareurl(task) {
+          if (!task.shareurl) return;
+          this.$set(task, "shareurl_ban", undefined);
+          try {
+            const matches = decodeURIComponent(task.shareurl).match(/\/(\w{32})-([^\/]+)$/);
+            if (matches) {
+              task.taskname = task.taskname == "" ? matches[2] : task.taskname;
+              task.savepath = task.savepath.replace(/TASKNAME/g, matches[2]);
+            }
+          } catch (e) {}
+          axios.post('/get_share_detail', { shareurl: task.shareurl })
+            .then(response => {
+              const share_detail = response.data.data;
+              if (!response.data.success) {
+                if (share_detail.error.includes("提取码")) {
+                  const passcode = prompt("检查失败[" + share_detail.error + "]，请输入提取码：");
+                  if (passcode != null) {
+                    task.shareurl = task.shareurl.replace(/pan.quark.cn\/s\/(\w+)(\?pwd=\w*)*/, `pan.quark.cn/s/$1?pwd=${passcode}`);
+                    this.changeShareurl(task);
+                    return;
+                  }
+                }
+                this.$set(task, "shareurl_ban", share_detail.error);
+              } else {
+                task.taskname = task.taskname == "" ? share_detail.share.title : task.taskname;
+                task.savepath = task.savepath.replace(/TASKNAME/g, share_detail.share.title);
+                this.$set(task, "shareurl_ban", undefined);
+              }
+            }).catch(error => { console.error('Error get_share_detail:', error); });
+        },
+        clearData(target) { this[target] = ""; },
+        async runScriptNow(task_index = null, test = false) {
+          this.showLogModal = true;
+          this.modalLoading = true;
+          this.run_log = '';
+          let body = {};
+          if (test) {
+            body = { "quark_test": true, "cookie": this.formData.cookie, "push_config": this.formData.push_config };
+          } else if (task_index != null) {
+            const task = { ...this.formData.tasklist[task_index] };
+            delete task.runweek;
+            body = { "tasklist": [task] };
+          } else if (this.configModified) {
+            if (!confirm('配置已修改但未保存，是否继续运行？')) { this.showLogModal = false; return; }
+          }
+          try {
+            const response = await fetch(`/run_script_now`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body)
+            });
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let partialData = '';
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              partialData += decoder.decode(value);
+              const lines = partialData.split('\n').filter(line => line.trim() !== '');
+              for (const line of lines) {
+                if (line.startsWith('data:')) {
+                  const eventData = line.substring(5).trim();
+                  if (eventData === '[DONE]') {
+                    this.modalLoading = false;
+                    if (task_index == null) this.fetchData();
+                    break;
+                  }
+                  this.run_log += eventData + '\n';
+                }
+              }
+              partialData = '';
+            }
+          } catch (error) {
+            this.modalLoading = false;
+            console.error('Error:', error);
+          }
+        },
+        getParentDirectory(path) {
+          const parentDir = path.substring(0, path.lastIndexOf('/'));
+          return parentDir == "" ? "/" : parentDir;
+        },
+        getRunTime(task) {
+          if (task.cron && task.cron.trim()) {
+            return task.cron.trim();
+          }
+          const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+          const runweek = task.runweek || [1, 2, 3, 4, 5, 6, 7];
+          const weekStr = runweek.length === 7 ? '每天' : runweek.map(d => '周' + weekdays[d - 1]).join('、');
+          return weekStr;
+        },
+        scrollToX(top = undefined) {
+          window.scrollTo({ top: top || document.documentElement.scrollHeight, behavior: "smooth" });
+        },
+        getAvailablePlugins(plugins) {
+          const availablePlugins = {};
+          const pluginsFlagsArray = this.plugin_flags.split(',');
+          for (const pluginName in plugins) {
+            if (!pluginsFlagsArray.includes(`-${pluginName}`)) {
+              availablePlugins[pluginName] = plugins[pluginName];
+            }
+          }
+          return availablePlugins;
+        },
+        toggleAllWeekdays(task) {
+          task.runweek = task.runweek.length === 7 ? [] : [1, 2, 3, 4, 5, 6, 7];
+        },
+        addMagicRegex() {
+          const newKey = `$MAGIC_${Object.keys(this.formData.magic_regex).length + 1}`;
+          this.$set(this.formData.magic_regex, newKey, { pattern: '', replace: '' });
+        },
+        updateMagicRegexKey(oldKey, newKey) {
+          if (oldKey !== newKey) {
+            if (this.formData.magic_regex[newKey]) {
+              this.showToast(`魔法名 [${newKey}] 已存在`, 'warning');
+              return;
+            }
+            this.$set(this.formData.magic_regex, newKey, this.formData.magic_regex[oldKey]);
+            this.$delete(this.formData.magic_regex, oldKey);
+          }
+        },
+        removeMagicRegex(key) {
+          if (confirm(`确认删除魔法匹配规则 [${key}] 吗？`)) {
+            this.$delete(this.formData.magic_regex, key);
+          }
+        },
+        deleteFile(fid, fname, isDir) {
+          if (fid != "" && confirm(`确认删除${isDir ? '目录' : '文件'} [${fname}] 吗？`))
+            axios.post('/delete_file', { fid: fid })
+              .then(response => {
+                if (response.data.code == 0) {
+                  this.fileSelect.fileList = this.fileSelect.fileList.filter(item => item.fid != fid);
+                } else {
+                  this.showToast('删除失败：' + response.data.message, 'error');
+                }
+              }).catch(error => { console.error('Error /delete_file:', error); });
+        },
+        getSavepathDetail(params = 0) {
+          if (params.includes('/')) params = { path: params };
+          else params = { fid: params };
+          this.modalLoading = true;
+          axios.get('/get_savepath_detail', { params: params })
+            .then(response => {
+              this.fileSelect.fileList = response.data.data.list;
+              this.sortFileList(this.fileSelect.sortBy, this.fileSelect.sortOrder);
+              if (response.data.data.paths?.length > 0) this.fileSelect.paths = response.data.data.paths;
+              this.modalLoading = false;
+            }).catch(error => {
+              console.error('Error /get_savepath_detail:', error);
+              this.fileSelect.error = "获取文件夹列表失败";
+              this.modalLoading = false;
+            });
+        },
+        showSavepathSelect(index) {
+          this.fileSelect.selectShare = false;
+          this.fileSelect.selectDir = true;
+          this.fileSelect.switchShare = false;
+          this.fileSelect.previewRegex = false;
+          this.fileSelect.error = undefined;
+          this.fileSelect.fileList = [];
+          this.fileSelect.paths = [];
+          this.fileSelect.index = index;
+          this.showFileModal = true;
+          this.formData.tasklist[index].savepath = this.formData.tasklist[index].savepath.replace(/\/+/g, "/");
+          this.getSavepathDetail(this.formData.tasklist[index].savepath);
+        },
+        getShareDetail() {
+          this.modalLoading = true;
+          const task = this.fileSelect.index >= 0
+            ? this.formData.tasklist[this.fileSelect.index]
+            : this.editingTask;
+          axios.post('/get_share_detail', {
+            shareurl: this.fileSelect.shareurl,
+            stoken: this.fileSelect.stoken,
+            task: task,
+            magic_regex: this.formData.magic_regex,
+          }).then(response => {
+            if (response.data.success) {
+              this.fileSelect.fileList = response.data.data.list;
+              this.sortFileList(this.fileSelect.sortBy, this.fileSelect.sortOrder);
+              this.fileSelect.paths = response.data.data.paths;
+              this.fileSelect.stoken = response.data.data.stoken;
+            } else {
+              this.fileSelect.error = response.data.data.error;
+            }
+            this.modalLoading = false;
+          }).catch(error => {
+            console.error('Error getting folders:', error);
+            this.fileSelect.error = "获取文件夹列表失败";
+            this.modalLoading = false;
+          });
+        },
+        showShareSelect(index, shareurl = null) {
+          this.fileSelect.selectShare = true;
+          this.fileSelect.fileList = [];
+          this.fileSelect.paths = [];
+          this.fileSelect.error = undefined;
+          const newShareurl = shareurl || this.formData.tasklist[index].shareurl;
+          const cleanUrl = (u) => u.match(/.*s\/[a-z0-9]+(\?pwd=[^#]+)?/)?.[0] || u;
+          if (cleanUrl(this.fileSelect.shareurl) != cleanUrl(newShareurl)) {
+            this.fileSelect.stoken = "";
+          }
+          this.fileSelect.shareurl = newShareurl;
+          this.fileSelect.index = index;
+          this.showFileModal = true;
+          this.getShareDetail();
+        },
+        switchShare(index) {
+          const data = this.smart_param?.taskSuggestions?.data || [];
+          let currentIndex = data.indexOf(this.fileSelect.share);
+          let nextIndex = currentIndex + index;
+          while (nextIndex >= 0 && nextIndex < data.length) {
+            if (data[nextIndex].verify !== false) break;
+            nextIndex += index;
+          }
+          if (nextIndex < 0) {
+            this.showToast("没有上一个啦", "info");
+          } else if (nextIndex >= data.length) {
+            this.showToast("没有下一个啦", "info");
+          } else {
+            this.fileSelect.error = "";
+            this.fileSelect.stoken = "";
+            this.fileSelect.share = data[nextIndex];
+            this.fileSelect.shareurl = data[nextIndex].shareurl;
+            this.fileSelect.paths = [];
+            this.fileSelect.fileList = [];
+            this.getShareDetail();
+          }
+        },
+        navigateTo(fid, name) {
+          const dir = { fid: fid, name: name };
+          if (this.fileSelect.selectShare) {
+            const cleanUrl = (u) => u.match(/.*s\/[a-z0-9]+(\?pwd=[^#]+)?/)?.[0] || u;
+            let newUrl = cleanUrl(this.fileSelect.shareurl);
+            if (dir.fid == 0) {
+              this.fileSelect.shareurl = newUrl;
+            } else {
+              this.fileSelect.shareurl = `${newUrl}#/list/share/${dir.fid}`;
+            }
+            this.getShareDetail();
+          } else {
+            if (fid == "0") {
+              this.fileSelect.paths = [];
+            } else {
+              const idx = this.fileSelect.paths.findIndex(item => item.fid === fid);
+              if (idx !== -1) {
+                this.fileSelect.paths = this.fileSelect.paths.slice(0, idx + 1);
+              } else {
+                this.fileSelect.paths.push({ fid: fid, name: name });
+              }
+            }
+            this.getSavepathDetail(fid);
+          }
+        },
+        selectCurrentFolder(addTaskname = false) {
+          const targetTask = this.fileSelect.index >= 0 ? this.formData.tasklist[this.fileSelect.index] : this.editingTask;
+          if (this.fileSelect.selectShare) {
+            targetTask.shareurl_ban = undefined;
+            targetTask.shareurl = this.fileSelect.shareurl;
+          } else {
+            targetTask.savepath = "/" + this.fileSelect.paths.map(item => item.name).join("/");
+            if (addTaskname) {
+              targetTask.savepath += "/" + targetTask.taskname;
+            }
+          }
+          this.showFileModal = false;
+        },
+        selectStartFid(fid) {
+          const targetTask = this.fileSelect.index >= 0 ? this.formData.tasklist[this.fileSelect.index] : this.editingTask;
+          targetTask.startfid = fid;
+          this.showFileModal = false;
+        },
+        sortFileList(column, order) {
+          if (this.fileSelect.sortBy === column && !order) {
+            this.fileSelect.sortOrder = this.fileSelect.sortOrder === "asc" ? "desc" : "asc";
+          } else {
+            this.fileSelect.sortBy = column;
+            this.fileSelect.sortOrder = order || "asc";
+          }
+          this.fileSelect.fileList.sort((a, b) => {
+            let valA = a[this.fileSelect.sortBy];
+            let valB = b[this.fileSelect.sortBy];
+            if (typeof valA === "string") valA = valA.toLowerCase();
+            if (typeof valB === "string") valB = valB.toLowerCase();
+            if (valA < valB) return this.fileSelect.sortOrder === "asc" ? -1 : 1;
+            if (valA > valB) return this.fileSelect.sortOrder === "asc" ? 1 : -1;
+            return 0;
+          });
+        },
+        inputRawMagicRegex(task) {
+          const item = this.formData.magic_regex[task.pattern];
+          if (item) {
+            task.pattern = item.pattern;
+            task.replace = item.replace;
+          }
+        },
+        copyText(text, callback = () => { }) {
+          if (!text) return;
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text);
+          } else {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+          }
+          callback();
+        },
+        copyTaskToClipboard(index) {
+          const task = { ...this.formData.tasklist[index] };
+          delete task.addition;
+          this.copyText(JSON.stringify(task), () => {
+            this.showToast("任务参数已复制到剪贴板", "success");
+          });
+        },
+        async addTaskForClipboard() {
+          let text = null;
+          try { text = await navigator.clipboard.readText(); }
+          catch (error) { text = prompt("请手动粘贴任务参数", ""); }
+          if (text) {
+            try {
+              let task = JSON.parse(text);
+              task = { ...this.newTask, ...task };
+              this.formData.tasklist.push(task);
+              this.showToast("剪贴板参数已成功导入", "success");
+            } catch (e) {
+              this.showToast("粘贴板内容格式错误", "error");
+            }
+          }
+        },
+        showToast(message, type = 'info') {
+          const id = Date.now();
+          this.toasts.push({ id, message, type });
+          setTimeout(() => { this.removeToast(id); }, 3000);
+        },
+        removeToast(id) {
+          this.toasts = this.toasts.filter(t => t.id !== id);
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
