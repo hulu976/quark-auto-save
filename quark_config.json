@@ -1,6 +1,6 @@
 {
     "cookie": [
-        "你的pan.quark.cn网站Cookie1，仅使用这一项即可保存任务"
+        "抓取你的pan.quark.cn网站的Cookie，仅使用这一项即可保存任务"
     ],
     "push_config": {
         "QUARK_SIGN_NOTIFY": true,

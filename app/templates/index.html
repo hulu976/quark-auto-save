@@ -1034,71 +1034,62 @@
           </div>
         </div>
         <div class="task-edit-container">
-          <div class="task-edit-card task-edit-grid">
-            <div>
+          <div class="task-edit-card task-edit-grid" style="gap:24px;">
+            <div style="border-right:1px solid #e8ecf0; padding-right:24px;">
               <label>任务名称</label>
-              <input type="text" v-model="editingTask.taskname" placeholder="请输入任务名称" style="width: 300px;" @focus="focusTasknameModal()" @input="changeTasknameModal()">
-            </div>
-            <div>
-              <label>分享链接</label>
+              <input type="text" v-model="editingTask.taskname" placeholder="请输入任务名称" style="width: 100%;" @focus="focusTasknameModal()" @input="changeTasknameModal()">
+
+              <label style="margin-top:12px;">分享链接</label>
               <div class="input-group">
-                <input type="text" v-model="editingTask.shareurl" placeholder="可选，输入分享链接" @blur="changeShareurl(editingTask)">
+                <input type="text" v-model="editingTask.shareurl" placeholder="可选，输入分享链接" @blur="changeShareurl(editingTask)" style="flex:1;">
                 <button class="btn btn-outline btn-sm" @click="showShareSelectModal()">📁</button>
               </div>
-            </div>
-          </div>
 
-          <div class="task-edit-card task-edit-grid">
-            <div>
-              <div class="task-edit-section-title">保存设置</div>
-              <label>保存路径</label>
+              <label style="margin-top:12px;">保存路径</label>
               <div class="input-group">
-                <input type="text" v-model="editingTask.savepath" placeholder="请输入保存路径">
+                <input type="text" v-model="editingTask.savepath" placeholder="请输入保存路径" style="flex:1;">
                 <button class="btn btn-outline btn-sm" @click="showSavepathSelectModal()">选择</button>
               </div>
+
               <label style="margin-top:12px;">文件起始</label>
               <div class="input-group">
-                <input type="text" v-model="editingTask.startfid" placeholder="选择起始文件">
+                <input type="text" v-model="editingTask.startfid" placeholder="选择起始文件" style="flex:1;">
                 <button class="btn btn-outline btn-sm" v-if="editingTask.shareurl" @click="showStartFidSelectModal()">选择</button>
               </div>
-            </div>
 
-            <div>
-              <div class="task-edit-section-title">定时规则</div>
-              <label>运行时间</label>
-              <input type="text" v-model="editingTask.cron" placeholder="0 8,18,20 * * *" style="width: 300px;" required />
-              <label style="margin-top:12px;">更新目录</label>
+              <label style="margin-top:12px;">匹配表达式</label>
               <div class="input-group">
-                <input type="text" v-model="editingTask.update_subdir" placeholder="匹配需要更新的目录" style="width: 300px;">
-                <label style="margin-bottom:0; margin-left:8px; white-space:nowrap; display:flex; align-items:center; gap:4px; color:#6b7a90; font-size:13px;">
-                  <input type="checkbox" v-model="editingTask.update_subdir_resave_mode" style="width:14px; height:14px; padding:0; border-radius:4px;"> 重传模式
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div class="task-edit-card task-edit-grid">
-            <div>
-              <div class="task-edit-section-title">保存规则</div>
-              <label>匹配表达式</label>
-              <div class="input-group">
-                <input type="text" v-model="editingTask.pattern" placeholder="输入匹配规则" style="width: 220px;" list="magicRegex" @dblclick="inputRawMagicRegex(editingTask)">
+                <input type="text" v-model="editingTask.pattern" placeholder="输入匹配规则" style="flex:1;" list="magicRegex" @dblclick="inputRawMagicRegex(editingTask)">
                 <button class="btn btn-outline btn-sm" @click="showRegexPreviewModal()">正则处理</button>
               </div>
+
               <label style="margin-top:12px;">替换表达式</label>
               <div class="input-group">
-                <input type="text" v-model="editingTask.replace" placeholder="输入替换内容" style="width: 220px;"/>
+                <input type="text" v-model="editingTask.replace" placeholder="输入替换内容" style="flex:1;"/>
                 <label style="margin-bottom:0; margin-left:8px; white-space:nowrap; display:flex; align-items:center; gap:4px; color:#6b7a90; font-size:13px;">
                   <input type="checkbox" v-model="editingTask.ignore_extension" style="width:14px; height:14px; padding:0; border-radius:4px;"> 忽略后缀
                 </label>
               </div>
             </div>
 
-            <div>
-              <div class="task-edit-section-title">插件选项</div>
-              <label>媒体库名称</label>
+            <div style="padding-left:24px;">
+              <label>运行时间</label>
+              <input type="text" v-model="editingTask.cron" placeholder="0 8,18,20 * * *" style="width:100%;" required />
+
+              <label style="margin-top:12px;">表达式解释</label>
+              <div style="font-size:13px; color:#3f4854; word-break:break-all; line-height:1.5; padding:8px 12px; background:#f5f7fb; border-radius:8px; min-height:40px; display:flex; align-items:center;">{{ parseCron(editingTask.cron) }}</div>
+
+              <label style="margin-top:12px;">更新目录</label>
               <div class="input-group">
-                <input type="text" v-model="editingTask.addition.fnv_refresh_v2.mdb_name" placeholder="如：电影库" style="width: 220px;">
+                <input type="text" v-model="editingTask.update_subdir" placeholder="匹配需要更新的目录" style="flex:1;">
+                <label style="margin-bottom:0; margin-left:8px; white-space:nowrap; display:flex; align-items:center; gap:4px; color:#6b7a90; font-size:13px;">
+                  <input type="checkbox" v-model="editingTask.update_subdir_resave_mode" style="width:14px; height:14px; padding:0; border-radius:4px;"> 重传模式
+                </label>
+              </div>
+
+              <label style="margin-top:12px;">媒体库名称</label>
+              <div class="input-group">
+                <input type="text" v-model="editingTask.addition.fnv_refresh_v2.mdb_name" placeholder="如：电影库" style="flex:1;">
                 <label style="margin-bottom:0; margin-left:8px; white-space:nowrap; display:flex; align-items:center; gap:4px; color:#6b7a90; font-size:13px;">
                   <input type="checkbox" v-model="editingTask.addition.fnv_refresh_v2.auto_refresh" style="width:14px; height:14px; padding:0; border-radius:4px;"> 媒体库刷新
                 </label>
@@ -1239,6 +1230,49 @@
         }
       },
       methods: {
+        parseCron(cron) {
+          if (!cron || typeof cron !== 'string') cron = '0 11,17 * * 5';
+          const parts = cron.trim().split(/\s+/);
+          if (parts.length !== 5) return '有效的 cron 表达式（5个字段）,注意中英文逗号';
+          
+          const [minute, hour, day, month, week] = parts;
+          const weekMap = {
+            '0': '周日', '1': '周一', '2': '周二', '3': '周三', 
+            '4': '周四', '5': '周五', '6': '周六', '7': '周日',
+            '*': '每天'
+          };
+          
+          let result = [];
+          
+          const parsePart = (part, label, map) => {
+            if (part === '*') return `每${label}`;
+            if (part.includes(',')) {
+              return part.split(',').map(p => map ? (map[p] || p) : p).join('、');
+            }
+            if (part.includes('-')) {
+              const [start, end] = part.split('-');
+              return map ? `${map[start] || start}到${map[end] || end}` : `${start}到${end}`;
+            }
+            return map ? (map[part] || part) : part;
+          };
+          
+          if (month !== '*') result.push(`${parsePart(month, '月')}月`);
+          
+          if (day !== '*' || week !== '*') {
+            if (day !== '*') result.push(`${parsePart(day, '日')}日`);
+            if (week !== '*') result.push(`${parsePart(week, '周', weekMap)}`);
+          } else {
+            result.push('每天');
+          }
+          
+          const hourStr = parsePart(hour, '点');
+          result.push(hourStr === '点' ? '点' : `${hourStr}点`);
+          
+          const minStr = parsePart(minute, '分');
+          result.push(minStr === '每分' ? '每分' : `${minStr}分`);
+          
+          return result.join(' ');
+        },
         formatFileSize(value) {
           if (!value) return "";
           const unitArr = ["B", "KB", "MB", "GB", "TB"];
@@ -1347,7 +1381,7 @@
               ignore_extension: false,
               runweek: [1, 2, 3, 4, 5, 6, 7],
               cron: "0 8,18,20 * * *",
-              addition: { fnv_refresh_v2: { auto_refresh: false, mdb_name: '' } }
+              addition: { fnv_refresh_v2: { auto_refresh: true, mdb_name: '' } }
             };
             if (this.formData.tasklist.length > 0) {
               const lastTask = this.formData.tasklist[this.formData.tasklist.length - 1];
