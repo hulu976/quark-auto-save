@@ -123,6 +123,14 @@ class Config:
             if f"-{module_name}" in PLUGIN_FLAGS:
                 continue
             try:
+                if module_name == "fnv_refresh_v2":
+                    import io
+                    import sys
+                    _old_stdout = sys.stdout
+                    _old_stderr = sys.stderr
+                    sys.stdout = io.StringIO()
+                    sys.stderr = io.StringIO()
+                
                 module = importlib.import_module(f"{plugins_dir}.{module_name}")
                 ServerClass = getattr(module, module_name.capitalize())
                 # 检查配置中是否存在该模块的配置
@@ -135,7 +143,15 @@ class Config:
                 # 检查插件是否支持单独任务配置
                 if hasattr(plugin, "default_task_config"):
                     task_plugins_config[module_name] = plugin.default_task_config
+                
+                if module_name == "fnv_refresh_v2":
+                    sys.stdout = _old_stdout
+                    sys.stderr = _old_stderr
             except (ImportError, AttributeError) as e:
+                if module_name == "fnv_refresh_v2":
+                    import sys
+                    sys.stdout = _old_stdout
+                    sys.stderr = _old_stderr
                 print(f"载入模块 {module_name} 失败: {e}")
         return plugins_available, plugins_config, task_plugins_config
 
@@ -1151,6 +1167,7 @@ def do_save(account, tasklist=[]):
     plugins, CONFIG_DATA["plugins"], task_plugins_config = Config.load_plugins(
         CONFIG_DATA.get("plugins", {})
     )
+    
     print()
     print(f"转存账号: {account.nickname}")
     # 获取全部保存目录fid
@@ -1248,6 +1265,67 @@ def do_save(account, tasklist=[]):
                     CONFIG_DATA["tasklist"] = data["tasklist"]
                 if data.get("config"):
                     CONFIG_DATA["plugins"][plugin_name] = data["config"]
+    
+    if "fnv_refresh_v2" in CONFIG_DATA.get("plugins", {}):
+        fnv_config = CONFIG_DATA["plugins"]["fnv_refresh_v2"]
+        endpoint = fnv_config.get("endpoint", "")
+        username = fnv_config.get("username", "")
+        password = fnv_config.get("password", "")
+        media_name = fnv_config.get("media_name", "影视")
+        
+        if endpoint and username and password:
+            if not endpoint.startswith("http"):
+                endpoint = f"http://{endpoint}"
+            try:
+                print(f"\n🔧 使用 FnvClient 刷新飞牛影视媒体库...")
+                
+                import importlib
+                mod = importlib.import_module("plugins.fnv_refresh_v2")
+                FnvClient = getattr(mod, "FnvClient")
+                
+                cs = FnvClient(endpoint)
+                
+                login_url = f"{endpoint}/v/api/v1/login"
+                response = requests.post(login_url, json={
+                    "username": username,
+                    "password": password,
+                    "app_name": "trimemedia-web"
+                }, timeout=15)
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    if result.get("code") == 0:
+                        token = result.get("data", {}).get("token")
+                        cs.set_fnv_token(token)
+                        
+                        media_libs = cs.get_media_libraries()
+                        if media_libs.get("code") == 0:
+                            target_guid = None
+                            for media in media_libs.get("data", []):
+                                if media.get("name") == media_name:
+                                    target_guid = media.get("guid")
+                                    break
+                            
+                            if target_guid:
+                                mount_quark = fnv_config.get("mount_quark", "")
+                                scan_result = cs.scan_media_library(target_guid, [mount_quark] if mount_quark else [])
+                                if scan_result.get("code") == 0:
+                                    print(f"✅ 媒体库 '{media_name}' 刷新成功！")
+                                else:
+                                    print(f"⚠️ 媒体库 '{media_name}' 刷新返回: {scan_result.get('msg', '')}")
+                            else:
+                                print(f"⚠️ 未找到媒体库 '{media_name}'")
+                        else:
+                            print(f"❌ 获取媒体库列表失败: {media_libs.get('msg', '未知错误')}")
+                    else:
+                        print(f"❌ 登录失败：{result.get('msg', '未知错误')}")
+                else:
+                    print(f"❌ HTTP 请求失败：{response.status_code}")
+            except Exception as e:
+                print(f"❌ FnvClient 刷新失败：{e}")
+                import traceback
+                traceback.print_exc()
+    
     print()
 
 
