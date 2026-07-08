@@ -1,4 +1,10 @@
 .git
 .github
 __pycache__
-/img
+config/quark_config.json
+.gitignore
+venv/
+.venv/
+.vscode/
+build/
+*.log

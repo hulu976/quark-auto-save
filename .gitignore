@@ -1,7 +1,10 @@
-quark_config_debug.json
-quark_config.json
 __pycache__
-/config
-.vscode
+.git
+.github
+/config/quark_config.json
+.gitignore
 venv/
-build.json
+.venv/
+.vscode/
+build/
+*.log
